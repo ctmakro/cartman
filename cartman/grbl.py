@@ -17,15 +17,18 @@ def choose_serial_connection():
     return l[int(k)].device
 
 class grbl:
-    def __init__(self):
-        print('(grbl)looking for serial connections.')
-        name = choose_serial_connection()
+    def __init__(self, name=None):
+        if name is None:
+            print('(grbl)looking for serial connections.')
+            name = choose_serial_connection()
 
         self.ser = serial.Serial(name,115200,timeout=0.2)
         print('(grbl)serial name: ',self.ser.name)
         self.linenumber = 0
 
         self.waitready()
+
+        self.default_timeout = None
 
     def readline(self):
         b = self.ser.readline()
@@ -77,13 +80,16 @@ class grbl:
         self.command(c)
         return self.waitok(timeout)
 
+    # use default timeout value
+    def command_ok_default(self,c):
+        return self.command_ok(c, self.default_timeout)
+
     # below APIs are for users
 
     # always do homing on start.
     def home(self):
-        self.command('$H') # homing
         print('(grbl) Homing...')
-        self.waitok(10) # wait for homing
+        self.command_ok_default('$H') # homing
 
     def goto(self, x=None, y=None, z=None, f=None):
         # f means feedrate(mm/min)
@@ -92,13 +98,16 @@ class grbl:
         # there is no need to limit speed of free movement since that's already limited by settings stored in the microcontroller EEPROM
 
         cmd = 'G1 '
-        if f is not None: cmd += 'f{:1.2f} '.format(f)
-        if x is not None: cmd += 'x{:1.2f} '.format(x)
-        if y is not None: cmd += 'y{:1.2f} '.format(y)
-        if z is not None: cmd += 'z{:1.2f} '.format(z)
+        if f is not None: cmd += 'f{:.2f} '.format(f)
+        if x is not None: cmd += 'x{:.2f} '.format(x)
+        if y is not None: cmd += 'y{:.2f} '.format(y)
+        if z is not None: cmd += 'z{:.2f} '.format(z)
 
-        self.command(cmd)
-        self.waitok(10)
+        self.command_ok_default(cmd)
+
+    def set_speed(self, speed):
+        if speed<=0: raise Exception('speed less than or equal to zero ({})'.format(speed))
+        self.command_ok_default('G1 F{:.2f}'.format(speed))
 
     # obtain status word from machine
     def status_report(self):
@@ -113,24 +122,3 @@ class grbl:
         while self.status_report().lower() != 'idle':
             time.sleep(0.5)
             pass
-
-if __name__ == '__main__':
-    g = grbl()
-    g.home()
-    for i in range(3):
-        g.goto(f=50000)
-        g.goto(x=100, y=0)
-        g.goto(x=170, y=30)
-
-        g.goto(x=200, y=100)
-        g.goto(x=170, y=170)
-
-        g.goto(x=100, y=200)
-        g.goto(x=30, y=170)
-
-        g.goto(x=0, y=100)
-        g.goto(x=30, y=30)
-
-    # don't close the serial connection before all the commands
-    # finish execution. otherwise the machine may restart.
-    g.wait_until_idle()
