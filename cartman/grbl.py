@@ -84,6 +84,8 @@ class grbl:
     def command_ok_default(self,c):
         return self.command_ok(c, self.default_timeout)
 
+    def send(self,c): return self.command_ok_default(c)
+
     # below APIs are for users
 
     # always do homing on start.
@@ -98,10 +100,10 @@ class grbl:
         # there is no need to limit speed of free movement since that's already limited by settings stored in the microcontroller EEPROM
 
         cmd = 'G1 '
-        if f is not None: cmd += 'f{:.2f} '.format(f)
-        if x is not None: cmd += 'x{:.2f} '.format(x)
-        if y is not None: cmd += 'y{:.2f} '.format(y)
-        if z is not None: cmd += 'z{:.2f} '.format(z)
+        if f is not None: cmd += 'F{:.2f} '.format(f)
+        if x is not None: cmd += 'X{:.2f} '.format(x)
+        if y is not None: cmd += 'Y{:.2f} '.format(y)
+        if z is not None: cmd += 'Z{:.2f} '.format(z)
 
         self.command_ok_default(cmd)
 
