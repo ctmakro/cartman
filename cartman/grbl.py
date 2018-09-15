@@ -13,6 +13,7 @@ def choose_serial_connection():
         print('({}) {}'.format(i,s))
 
     k = input('Please enter a number [{}-{}]'.format(0, len(l)-1))
+    k = k.strip()
     if len(k)==0: k=0
     return l[int(k)].device
 
