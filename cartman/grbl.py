@@ -138,3 +138,6 @@ class grbl:
         while self.status_report().lower() != 'idle':
             time.sleep(0.5)
             pass
+
+    def join(self):return self.wait_until_idle()
+    def sync(self):return self.join()
