@@ -57,10 +57,23 @@ class grbl:
                 current = time.time()
                 print('(grbl) RECV: "{}"'.format(line))
                 collected_lines.append(line)
+                self.errorfilter(line) # check to see if any errors were returned
                 if (length==0 and line == string) or (length>0 and line[0:length] == string):
                     return collected_lines
             else:
                 pass
+
+    def errorfilter(self, string):
+        if 'error:' in string:
+            eid = string[6:].strip()
+
+            from .errors import errors
+
+            if eid in errors:
+                raise Exception('(grbl) ERROR:{}({})"'.format(
+                    eid, errors[eid]))
+            else:
+                raise Exception('(grbl) UNKNOWN ERROR ({})'.format(eid))
 
     def waitok(self,timeout=None):
         return self.wait('ok',timeout)
