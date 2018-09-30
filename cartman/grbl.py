@@ -75,6 +75,17 @@ class grbl:
             else:
                 raise Exception('(grbl) UNKNOWN ERROR ({})'.format(eid))
 
+        if 'ALARM:' in string:
+            eid = string[6:].strip()
+
+            from .errors import alarms
+            if eid in alarms:
+                raise Exception('(grbl) ALARM:{}({})"'.format(
+                    eid, alarms[eid]))
+            else:
+                raise Exception('(grbl) UNKNOWN ALARM ({})'.format(eid))
+
+
     def waitok(self,timeout=None):
         return self.wait('ok',timeout)
 

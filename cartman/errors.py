@@ -36,14 +36,31 @@ errors ='''
 36	There are unused, leftover G-code words that aren't used by any command in the block.
 37	The G43.1 dynamic tool length offset command cannot apply an offset to an axis other than its configured axis. The Grbl default axis is the Z-axis.
 '''
-errors = errors.split('\n')
-errors = [e.strip() for e in errors]
-errors = [e for e in errors if len(e)>0]
-errors = [e.split('\t') for e in errors]
-errors = [(e[0], e[1]) for e in errors]
 
-d = {}
-for e in errors:
-    d[e[0]] = e[1]
+alarms = '''
+1	Hard limit triggered. Machine position is likely lost due to sudden and immediate halt. Re-homing is highly recommended.
+2	G-code motion target exceeds machine travel. Machine position safely retained. Alarm may be unlocked.
+3	Reset while in motion. Grbl cannot guarantee position. Lost steps are likely. Re-homing is highly recommended.
+4	Probe fail. The probe is not in the expected initial state before starting probe cycle, where G38.2 and G38.3 is not triggered and G38.4 and G38.5 is triggered.
+5	Probe fail. Probe did not contact the workpiece within the programmed travel for G38.2 and G38.4.
+6	Homing fail. Reset during active homing cycle.
+7	Homing fail. Safety door was opened during active homing cycle.
+8	Homing fail. Cycle failed to clear limit switch when pulling off. Try increasing pull-off setting or check wiring.
+9	Homing fail. Could not find limit switch within search distance. Defined as 1.5 * max_travel on search and 5 * pulloff on locate phases.
+'''
 
-errors = d
+def dictize(errors):
+    errors = errors.split('\n')
+    errors = [e.strip() for e in errors]
+    errors = [e for e in errors if len(e)>0]
+    errors = [e.split('\t') for e in errors]
+    errors = [(e[0], e[1]) for e in errors]
+
+    d = {}
+    for e in errors:
+        d[e[0]] = e[1]
+
+    return d
+
+errors = dictize(errors)
+alarms = dictize(alarms)
