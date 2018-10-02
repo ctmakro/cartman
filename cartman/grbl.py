@@ -18,7 +18,7 @@ def choose_serial_connection():
     return l[int(k)].device
 
 class grbl:
-    def __init__(self, name=None):
+    def __init__(self, name=None, verbose=True):
         if name is None:
             print('(grbl)looking for serial connections.')
             name = choose_serial_connection()
@@ -27,16 +27,21 @@ class grbl:
         print('(grbl)serial name: ',self.ser.name)
         self.linenumber = 0
 
+        self.default_timeout = None
+        self.verbose = verbose
+
         self.waitready()
 
-        self.default_timeout = None
+    def debug(self, *a):
+        if self.verbose:
+            print(*a)
 
     def readline(self):
         b = self.ser.readline()
         return b.decode('ascii')[:-2] # cutoff \r\n
 
     def command(self,string):
-        print('(grbl) SENT: '+string)
+        self.debug('(grbl) SENT: '+string)
         b = (string+'\n').encode('ascii')
         self.ser.write(b)
         self.ser.flush()
@@ -46,7 +51,7 @@ class grbl:
     def wait(self, string, timeout=None, length=0):
         current = time.time()
         collected_lines = []
-        print('(grbl) waiting for "'+ string+'"')
+        self.debug('(grbl) waiting for "'+ string+'"')
         while 1:
             if timeout is not None:
                 if time.time() - current > timeout:
@@ -55,7 +60,7 @@ class grbl:
             line = self.readline()
             if len(line)>0:
                 current = time.time()
-                print('(grbl) RECV: "{}"'.format(line))
+                self.debug('(grbl) RECV: "{}"'.format(line))
                 collected_lines.append(line)
                 self.errorfilter(line) # check to see if any errors were returned
                 if (length==0 and line == string) or (length>0 and line[0:length] == string):
@@ -94,7 +99,7 @@ class grbl:
             try:
                 self.command('$X') # clear status
                 self.wait('ok', timeout=1, length=2)
-                print('(grbl) Machine Ready.')
+                self.debug('(grbl) Machine Ready.')
             except Exception as e:
                 print(e)
             else:
@@ -115,7 +120,7 @@ class grbl:
 
     # always do homing on start.
     def home(self):
-        print('(grbl) Homing...')
+        self.debug('(grbl) Homing...')
         self.command_ok_default('$H') # homing
 
     def goto(self, x=None, y=None, z=None, f=None):

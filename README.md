@@ -1,6 +1,8 @@
 # Cartman
 
-control your Cartman cartesian robot via serial from python.
+control your Cartman cartesian robot via a serial port on your computer from python.
+
+![](cartman_github.jpg)
 
 ## Installation
 
@@ -29,7 +31,7 @@ b.goto(x=10,y=10)
 b.sync()
 ```
 
-## Detailed Introduction
+## Get into the details
 
 Make sure you read the **Cartman User Manual** before trying anything here.
 
@@ -41,7 +43,13 @@ you can of course initialize the class with a serial port of your choice (instea
 b = bot(name='COM2')
 ```
 
-After connected to the specified serial port, the library will send `$X` command to the bot and wait for an `ok` response. The call will block when waiting for an `ok` response.
+The class will print out everything it sends and receives via serial. you can suppress the printouts by specifying `verbose=False` on init:
+
+```python
+b = bot(verbose=False)
+```
+
+After connected to the specified serial port, the controller board will likely reset itself, so we have to wait until the bot is ready to receive commands. The library will repeatedly send `$X` command to the bot and wait for an `ok` response. The call will block when waiting for an `ok` response.
 
 The initializer will return after the expected `ok` arrives. You can now send more commands to the bot.
 
