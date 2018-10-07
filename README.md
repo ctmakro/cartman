@@ -35,6 +35,8 @@ b.sync()
 
 Make sure you read the **Cartman User Manual** before trying anything here.
 
+### Initialization/Connecting
+
 The Cartman robot is connected to your computer via a USB-serial link. When you instantiate the `bot` class, you will be prompted with a list of available serial ports on your OS. The chosen port will be connected.
 
 you can of course initialize the class with a serial port of your choice (instead of prompting the user) as follows:
@@ -43,15 +45,21 @@ you can of course initialize the class with a serial port of your choice (instea
 b = bot(name='COM2')
 ```
 
+### Verbosity
+
 The class will print out everything it sends and receives via serial. you can suppress the printouts by specifying `verbose=False` on init:
 
 ```python
 b = bot(verbose=False)
 ```
 
+### Wait for ready
+
 After connected to the specified serial port, the controller board will likely reset itself, so we have to wait until the bot is ready to receive commands. The library will repeatedly send `$X` command to the bot and wait for an `ok` response. The call will block when waiting for an `ok` response.
 
 The initializer will return after the expected `ok` arrives. You can now send more commands to the bot.
+
+### Sending commands in the form of G-code strings
 
 ```python
 b.command_ok('G1 X100 Y100')
@@ -61,7 +69,13 @@ The call above sends the command `G1 X100 Y100` to the bot and returns after rec
 
 `b.send(c)` is shorthand for `b.command_ok(c)`
 
-`b.home()` is shorthand for the command `$H`. As stated in the User Manual, the bot won't do anything before homing.
+This feature is however not needed in most cases.
+
+### Homing
+
+`b.home()` is shorthand for `b.command_ok('$H')`. As stated in the User Manual, the bot won't do anything before homing.
+
+### Movement
 
 `b.goto(x=100, y=20, z=-5, f=1000)` is shorthand for the command `G1X100Y20Z-5F1000`.
 
