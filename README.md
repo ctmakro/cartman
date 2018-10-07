@@ -73,11 +73,6 @@ The call above sends the command `G1 X100 Y100` to the bot and returns after rec
 
 * Instead of constructing/sending commands yourself, we suggest using methods listed below for normal operation of the bot.
 
-<<<<<<< HEAD
-=======
-This feature is however not needed in most cases.
-
->>>>>>> 2a46714a6862692c0d4339e7e1e5df5c11372b46
 ### Homing
 
 `b.home()` is shorthand for `b.command_ok('$H')`. As stated in the User Manual, the bot won't do anything before homing.
