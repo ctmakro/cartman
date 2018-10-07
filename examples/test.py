@@ -5,6 +5,8 @@ serial_port = choose_serial_connection()
 g = bot(name=serial_port)
 g.home()
 
+g.set_offset(100,300)
+
 for i in range(1):
     g.set_speed(50000)
 
@@ -35,10 +37,10 @@ for i in range(2):
 # try G2 clockwise arcs
 g.goto(x=100, y=100)
 
-for i in range(4):
-    g.send('G2 X100 Y200 R50')
-    g.send('G2 X100 Y100 R55')
+# for i in range(4):
+#     g.send('G2 X100 Y200 R50')
+#     g.send('G2 X100 Y100 R55')
 
 # don't close the serial connection before all the commands
 # finish execution. otherwise the machine may restart.
-g.wait_until_idle()
+g.sync()

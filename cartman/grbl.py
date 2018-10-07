@@ -30,6 +30,7 @@ class grbl:
         self.default_timeout = None
         self.verbose = verbose
 
+        self.init_offset()
         self.waitready()
 
     def debug(self, *a):
@@ -131,11 +132,20 @@ class grbl:
 
         cmd = 'G1'
         if f is not None: cmd += 'F{:.2f}'.format(f)
-        if x is not None: cmd += 'X{:.2f}'.format(x)
-        if y is not None: cmd += 'Y{:.2f}'.format(y)
-        if z is not None: cmd += 'Z{:.2f}'.format(z)
+        if x is not None: cmd += 'X{:.2f}'.format(x+self.offset[0])
+        if y is not None: cmd += 'Y{:.2f}'.format(y+self.offset[1])
+        if z is not None: cmd += 'Z{:.2f}'.format(z+self.offset[2])
 
         self.command_ok_default(cmd)
+
+    # helper for offseting the coordinate system.
+    def init_offset(self):
+        self.set_offset(0,0,0)
+
+    # add an offset to the bot.
+    def set_offset(self, x=None, y=None, z=None):
+        def n2z(x): return 0 if x is None else x
+        self.offset = [n2z(k) for k in [x,y,z]]
 
     def set_speed(self, speed):
         if speed<=0: raise Exception('speed less than or equal to zero ({})'.format(speed))

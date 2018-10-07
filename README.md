@@ -61,11 +61,13 @@ The call above sends the command `G1 X100 Y100` to the bot and returns after rec
 
 `b.send(c)` is shorthand for `b.command_ok(c)`
 
-`b.home()` is shorthand for the command `$H`.
+`b.home()` is shorthand for the command `$H`. As stated in the User Manual, the bot won't do anything before homing.
 
 `b.goto(x=100, y=20, z=-5, f=1000)` is shorthand for the command `G1X100Y20Z-5F1000`.
 
 `b.set_speed(1000)` is shorthand for the command `G1F1000`. The bot will not move before a speed is specified.
+
+`b.set_offset(x, y, z)` will shift the coordinate positions specified in later `b.goto()` calls by `x`, `y` and `z` correspondingly.
 
 `b.sync()`, `b.join()`, `b.wait_until_idle()` is shorthand for "wait until the bot got into its 'Idle' state". Three methods are identical.
 
