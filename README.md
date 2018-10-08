@@ -37,8 +37,6 @@ Make sure you've read the **Cartman User Manual** before trying anything here.
 
 ### Initialization/Connecting
 
-### Initialization/Connecting
-
 The Cartman robot is connected to your computer via a USB-serial link. When you instantiate the `bot` class, you will be prompted with a list of available serial ports on your OS. The chosen port will be connected.
 
 you can of course initialize the class with a serial port of your choice (instead of prompting the user) as follows:
