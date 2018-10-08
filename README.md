@@ -89,7 +89,7 @@ The call above sends the command `G1 X100 Y100` to the bot and returns after rec
 
 `b.init_offset()` is shorthand for `b.set_offset(0,0,0)`.
 
-### Syncing
+### Synchronization
 
 `b.sync()`, `b.join()` and `b.wait_until_idle()` are shorthands for "wait until the bot got into its 'Idle' state". Three methods are identical.
 
@@ -98,3 +98,7 @@ When you send a movement command to the bot, the call usually returns before the
 So if you send a bunch of commands to the bot, then immediately quit the python script, the serial port will be closed before the bot finishes all the movement. Unfortunately this particular controller board will reset itself when a host disconnects, which will cause the bot to stop before all buffered commands are executed.
 
 The solution is to call `b.sync()` at the end of your script, which will only return after all buffered commands are executed.
+
+### Locate
+
+`b.where()` returns a list of 3 floating point numbers, in case you want to know the working position of the bot in real time. Do not call this function too frequently as it pulls data from the controller board via serial on each call.

@@ -30,6 +30,7 @@ class grbl:
         self.default_timeout = None
         self.verbose = verbose
 
+        self.status_dict = {}
         self.init_offset()
         self.waitready()
 
@@ -39,11 +40,15 @@ class grbl:
 
     def readline(self):
         b = self.ser.readline()
-        return b.decode('ascii')[:-2] # cutoff \r\n
+        # return b.decode('ascii')[:-2] # cutoff \r\n
+        return b.decode('ascii').strip() # cutoff \r\n
 
     def command(self,string):
-        self.debug('(grbl) SENT: '+string)
-        b = (string+'\n').encode('ascii')
+        self.debug('(grbl) SENT:', string)
+        if type(string).__name__=='bytes':
+            b = string
+        else:
+            b = (string+'\n').encode('ascii')
         self.ser.write(b)
         self.ser.flush()
 
@@ -64,10 +69,31 @@ class grbl:
                 self.debug('(grbl) RECV: "{}"'.format(line))
                 collected_lines.append(line)
                 self.errorfilter(line) # check to see if any errors were returned
+                self.statusfilter(line)
+
                 if (length==0 and line == string) or (length>0 and line[0:length] == string):
                     return collected_lines
             else:
                 pass
+
+    # if received line contains status report, parse it here.
+    def statusfilter(self, string):
+        if string[0]=='<' and string[-1]=='>':
+            string = string[1:-1]
+            groups = string.split('|')
+            self.status_dict['state'] = groups[0]
+            for g in groups[1:]:
+                k,v = g.split(':')
+                # d[k] = v
+                self.status_dict[k] = v
+
+            if 'WCO' in self.status_dict and 'MPos' in self.status_dict:
+                def parse_xyz(s):
+                    return [float(i) for i in s.split(',')]
+                self.working_position = [m-o for m, o in zip(
+                    parse_xyz(self.status_dict['MPos']),
+                    parse_xyz(self.status_dict['WCO']),
+                )]
 
     def errorfilter(self, string):
         if 'error:' in string:
@@ -153,17 +179,23 @@ class grbl:
 
     # obtain status word from machine
     def status_report(self):
-        self.command('?')
+        self.command(b'?')
         lines = self.wait('<', timeout=10, length=1)
-        line = lines[-1]
-        import re
-        return re.match(r'\<(.*?)\|', line).group(1)
+        # line = lines[-1]
+        # import re
+        # return re.match(r'\<(.*?)\|', line).group(1)
+        return self.status_dict
 
     # wait for all commands in buffer finish execution
-    def wait_until_idle(self):
-        while self.status_report().lower() != 'idle':
-            time.sleep(0.5)
+    def wait_until_idle(self, interval=0.5):
+        while self.status_report()['state'].lower() != 'idle':
+            time.sleep(interval)
             pass
 
-    def join(self):return self.wait_until_idle()
-    def sync(self):return self.join()
+    # report position in working coordinates.
+    def where(self):
+        self.status_report()
+        return self.working_position
+
+    def join(self,*a,**k):return self.wait_until_idle(*a,**k)
+    def sync(self,*a,**k):return self.join(*a,**k)

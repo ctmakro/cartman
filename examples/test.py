@@ -8,6 +8,7 @@ g.home()
 g.set_offset(100,300)
 
 for i in range(1):
+    print(g.where())
     g.set_speed(50000)
 
     g.goto(x=100, y=0)
@@ -25,17 +26,19 @@ for i in range(1):
     g.goto(x=30, y=30)
 
 import math
-for i in range(2):
+for i in range(3):
     # go around in circles
 
-    g.set_speed(5000*(i+1)) # in different speed
+    g.set_speed(10000*(i+1)) # in different speed
 
     [g.goto(
         x=math.cos(k/128*math.pi*2)*100+50,
         y=math.sin(k/128*math.pi*2)*100+50) for k in range(128)]
 
+print(g.where())
 # try G2 clockwise arcs
 g.goto(x=100, y=100)
+print(g.where())
 
 # for i in range(4):
 #     g.send('G2 X100 Y200 R50')
