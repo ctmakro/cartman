@@ -19,24 +19,24 @@ def choose_serial_connection():
 
 class grbl:
     def __init__(self, name=None, verbose=True):
+        self.verbose = verbose
+        self.linenumber = 0
+        self.default_timeout = None
+        self.status_dict = {}
+        self.init_offset()
+
         if name is None:
-            print('(grbl)looking for serial connections.')
+            self.debug('looking for serial connections.')
             name = choose_serial_connection()
 
         self.ser = serial.Serial(name,115200,timeout=0.2)
-        print('(grbl)serial name: ',self.ser.name)
-        self.linenumber = 0
+        self.debug('serial name:',self.ser.name)
 
-        self.default_timeout = None
-        self.verbose = verbose
-
-        self.status_dict = {}
-        self.init_offset()
         self.waitready()
 
-    def debug(self, *a):
+    def debug(self, *a, **k):
         if self.verbose:
-            print(*a)
+            print('(grbl)', *a, **k)
 
     def readline(self):
         b = self.ser.readline()
@@ -44,7 +44,7 @@ class grbl:
         return b.decode('ascii').strip() # cutoff \r\n
 
     def command(self,string):
-        self.debug('(grbl) SENT:', string)
+        self.debug('SENT:', string)
         if type(string).__name__=='bytes':
             b = string
         else:
@@ -57,16 +57,16 @@ class grbl:
     def wait(self, string, timeout=None, length=0):
         current = time.time()
         collected_lines = []
-        self.debug('(grbl) waiting for "'+ string+'"')
+        self.debug('waiting for "'+ string+'"')
         while 1:
             if timeout is not None:
                 if time.time() - current > timeout:
-                    raise Exception('(grbl) waited longer than '+str(timeout))
+                    raise Exception('waited for "'+str(string)+'" for longer than '+str(timeout))
 
             line = self.readline()
             if len(line)>0:
                 current = time.time()
-                self.debug('(grbl) RECV: "{}"'.format(line))
+                self.debug('RECV: "{}"'.format(line))
                 collected_lines.append(line)
                 self.errorfilter(line) # check to see if any errors were returned
                 self.statusfilter(line)
@@ -102,20 +102,20 @@ class grbl:
             from .errors import errors
 
             if eid in errors:
-                raise Exception('(grbl) ERROR:{}({})"'.format(
+                raise Exception('ERROR:{}({})"'.format(
                     eid, errors[eid]))
             else:
-                raise Exception('(grbl) UNKNOWN ERROR ({})'.format(eid))
+                raise Exception('UNKNOWN ERROR ({})'.format(eid))
 
         if 'ALARM:' in string:
             eid = string[6:].strip()
 
             from .errors import alarms
             if eid in alarms:
-                raise Exception('(grbl) ALARM:{}({})"'.format(
+                raise Exception('ALARM:{}({})"'.format(
                     eid, alarms[eid]))
             else:
-                raise Exception('(grbl) UNKNOWN ALARM ({})'.format(eid))
+                raise Exception('UNKNOWN ALARM ({})'.format(eid))
 
 
     def waitok(self,timeout=None):
@@ -126,9 +126,9 @@ class grbl:
             try:
                 self.command('$X') # clear status
                 self.wait('ok', timeout=1, length=2)
-                self.debug('(grbl) Machine Ready.')
+                self.debug('Machine Ready.')
             except Exception as e:
-                print(e)
+                self.debug(e)
             else:
                 return
 
@@ -147,7 +147,7 @@ class grbl:
 
     # always do homing on start.
     def home(self):
-        self.debug('(grbl) Homing...')
+        self.debug('Homing...')
         self.command_ok_default('$H') # homing
 
     def goto(self, x=None, y=None, z=None, f=None):
