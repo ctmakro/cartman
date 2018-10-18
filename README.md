@@ -7,7 +7,6 @@ control your Cartman Cartesian robot via a serial port on your computer from pyt
 ## Installation
 
 ```bash
-pip install pyserial
 git clone https://github.com/ctmakro/cartman
 pip install -e cartman # "-e" means "edit mode"
 ```
