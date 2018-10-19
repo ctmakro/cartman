@@ -192,6 +192,9 @@ class grbl:
             time.sleep(interval)
             pass
 
+    def is_idle(self):
+        return self.status_report()['state'].lower() == 'idle'
+
     # report position in working coordinates.
     def where(self):
         self.status_report()
