@@ -34,9 +34,12 @@ class grbl:
 
         self.waitready()
 
+    def get_identity_string(self):
+        return '(grbl)'
+
     def debug(self, *a, **k):
         if self.verbose:
-            print('(grbl)', *a, **k)
+            print(self.get_identity_string(), *a, **k)
 
     def readline(self):
         b = self.ser.readline()
@@ -199,3 +202,11 @@ class grbl:
 
     def join(self,*a,**k):return self.wait_until_idle(*a,**k)
     def sync(self,*a,**k):return self.join(*a,**k)
+
+class solenoid(grbl):
+    def get_identity_string(self):
+        return '(solenoid)'
+
+    def drive(self, pin, duration):
+        cmd = ';P{:d}T{:d}'.format(pin, duration)
+        self.command_ok_default(cmd)
