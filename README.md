@@ -7,7 +7,6 @@ control your Cartman Cartesian robot via a serial port on your computer from pyt
 ## Installation
 
 ```bash
-pip install pyserial
 git clone https://github.com/ctmakro/cartman
 pip install -e cartman # "-e" means "edit mode"
 ```
@@ -47,7 +46,7 @@ b = bot(name='COM2')
 
 ### Verbosity
 
-The class will print out everything it sends and receives via serial. you can suppress the printouts by specifying `verbose=False` on init:
+The bot object will print out everything it sends and receives via serial. you can suppress the printouts by specifying `verbose=False` on init:
 
 ```python
 b = bot(verbose=False)
