@@ -206,6 +206,13 @@ class grbl:
     def join(self,*a,**k):return self.wait_until_idle(*a,**k)
     def sync(self,*a,**k):return self.join(*a,**k)
 
+    # keep motor locked even when not moving (avoid loosing steps)
+    # note: persistent; works only when machine is not moving.
+    def motor_locked(self):
+        self.command_ok_default('$1=255')
+    def motor_unlocked(self):
+        self.command_ok_default('$1=250')
+
 class solenoid(grbl):
     def get_identity_string(self):
         return '(solenoid)'
